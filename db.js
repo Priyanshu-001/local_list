@@ -8,11 +8,10 @@ mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopol
 
 const customerSchema = new Schema({
   'name': String,
-  'status':{
-    'required':true,
-    'default':'incomplete',
-    'enum':['completed','incomplete'],
-  },
+  // 'creation':{
+  //   'default':'incomplete',
+  //   'enum':['completed','incomplete'],
+  // },
   'number': {
     'type': String,
     'required':true,
@@ -31,11 +30,10 @@ const customerSchema = new Schema({
 
 const partnerSchema = new Schema({
   'name': String,
-  'status':{
-    'required':true,
-    'default':'incomplete',
-    'enum':['completed','incomplete'],
-  },
+  // 'creation':{
+  //   'default':'incomplete',
+  //   'enum':['completed','incomplete'],
+  // },
   'number': {
     'type': String,
     'required':true,
@@ -56,5 +54,9 @@ const partnerSchema = new Schema({
 
 })
 
-export const customer = mongoose.model('customer',customerSchema)
-export const partner = mongoose.model('partner',partnerSchema)
+const  customer = mongoose.model('customer',customerSchema)
+const  partner = mongoose.model('partner',partnerSchema)
+
+module.exports.customer = customer
+module.exports.partner = partner
+

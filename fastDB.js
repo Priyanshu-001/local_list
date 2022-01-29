@@ -12,11 +12,34 @@ const sniff  = new Sniffr()
 sniff.sniff(userAgent)
 const OS = sniff.os
 const browser = sniff.browser
-users[_id] = [...users[id], {clientID:clientID,
+users[_id] = [...users[_id], {clientID:clientID,
 							ip:req.ip,
 							firstLogin:Date.now(),
 							OS:OS,
 							browser: Browser
-							secret: secret
+
 						}]
 }
+
+async function validateRefresh(_id,clientID){
+	if(!!users[_id]){
+		users[_id].map(item=>{
+			if(item.clientID === clientID){
+				return true
+			}
+		})
+	}
+	return false
+
+}
+async function getDeviceList(_id){
+	if(_id ==='__proto__')
+		return []
+	else if(!!users[_id])
+		return []
+	return  users[_id]
+}
+
+module.exports.store = store
+module.exports.validateRefresh = validateRefresh
+module.exports.getDeviceList = getDeviceList

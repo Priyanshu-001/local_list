@@ -1,25 +1,14 @@
+const customer = require('./customer')
+const business = require('./business')
+const {client } = require('./verify')
+const {checkMobile,getAccessToken,validateRefresh,validateJWT} = require('./utils')
+
 const router = require('express').Router()
-import {client } from './verify'
-checkMobile = (req,res,next)=>{
-	const number = req.body.number 
-	try{
-		if(!!number && number%1==0){
 
-		}
-		else{
-			throw "Not a Number"
-		}
-	}
-	catch(error)
-	{
-		return res.sendStatus(400)
-	}
-
-	next()
-}
+router.use('/customer',customer)
 
 
-router.post('/sendOTP',checkMobile,function(req,res){
+router.post('/sendOTP',checkMobile,async function(req,res){
 	client.verify.services(SERVICE)
              .verifications
              .create({to: `+91${req.body.number}`, channel: 'sms'})
@@ -31,7 +20,17 @@ router.post('/sendOTP',checkMobile,function(req,res){
 
 })
 
+router.post('/refreshToken',validateRefresh,getAccessToken,async (req,res)=>{
+	return res.json({'jwt':req.accessToken})
+})
+router.post('/devices',validateJWT,async (req,res)=>{
+	const deviceList = fastDB.getDeviceList(req.user._id)
+	return res.json({'devices':deviceList})
+})
 
 
 
-export default router
+
+
+
+module.exports =  router
