@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
 const { Schema } = mongoose
+require('dotenv').config()
+
 //db connection
 mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true,autoIndex: false })
 .catch(e=>{
@@ -15,6 +17,7 @@ const customerSchema = new Schema({
   'number': {
     'type': String,
     'required':true,
+    'index': true
 
   },
   'nOrders':{
@@ -37,6 +40,7 @@ const partnerSchema = new Schema({
   'number': {
     'type': String,
     'required':true,
+    'index': true
   },
   'nOrders':{
     'type':Number,

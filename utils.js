@@ -7,11 +7,12 @@ const JWT_SECRET = process.env['JWT_SECRET']
   const checkMobile = (req,res,next)=>{
 	const number = req.body.number 
 	try{
-		if(!!number && number%1==0){
-
+		if(!!number && number%1==0 && number.length === 10){
+			console.log("Good format")
+			next()
 		}
 		else{
-			throw "Not a Number"
+		return res.sendStatus(400)
 		}
 	}
 	catch(error)
@@ -19,7 +20,7 @@ const JWT_SECRET = process.env['JWT_SECRET']
 		return res.sendStatus(400)
 	}
 
-	next()
+	
 }
 
   const verifyOTP = async (req,res,next)=>{
@@ -29,17 +30,20 @@ client.verify.services(SERVICE)
 	.create({to:`+91${req.body.number}`, code: req.body.OTP})
 	.then(verification_check=>{
 		if(verification_check.status==='pending')
-		return res.json({verified:false})
+		return res.sendStatus(401)
 		else
+			{
 			req.OTPVerified = true
+			next()
+			}
 		
 	})
 	.catch(error=>{
 		console.log(error)
-		return res.json({error:true})
+		return res.sendStatus(500)
 
 	})
-	next()
+	
 	
 }
 
