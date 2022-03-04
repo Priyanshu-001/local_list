@@ -3,12 +3,15 @@ const fastDB  = require('./fastDB')
 const SERVICE = process.env['SERVICE']
 const REFRESH_SECRET = process.env['REFRESH_SECRET']
 const JWT_SECRET = process.env['JWT_SECRET']
+const jwt = require('jsonwebtoken')
+
 
   const checkMobile = (req,res,next)=>{
 	const number = req.body.number 
 	try{
 		if(!!number && number%1==0 && number.length === 10){
 			console.log("Good format")
+			req.number = number
 			next()
 		}
 		else{
@@ -25,25 +28,29 @@ const JWT_SECRET = process.env['JWT_SECRET']
 
   const verifyOTP = async (req,res,next)=>{
 req.OTPVerified = false
-client.verify.services(SERVICE)
-	.verificationChecks
-	.create({to:`+91${req.body.number}`, code: req.body.OTP})
-	.then(verification_check=>{
-		if(verification_check.status==='pending')
-		return res.sendStatus(401)
-		else
-			{
-			req.OTPVerified = true
-			next()
-			}
-		
-	})
-	.catch(error=>{
-		console.log(error)
-		return res.sendStatus(500)
+// client.verify.services(SERVICE)
+// 	.verificationChecks
+// 	.create({to:`+91${req.body.number}`, code: req.body.OTP})
+// 	.then(verification_check=>{
+// 		if(verification_check.status==='pending')
+// 		return res.sendStatus(401)
+// 		else
+// 			{
+// 			req.OTPVerified = true
+// 			next()
+// 			}
+// 		
+// 	})
+// 	.catch(error=>{
+// 		console.log(error)
+// 		return res.sendStatus(500)
+// 
+// 	})
+// 	
 
-	})
-	
+//testing COde
+req.OTPVerified = true
+next()
 	
 }
 
@@ -52,18 +59,22 @@ function getRandomInt(max) {
 }
 
  const getRefreshToken = async (req,res,next)=>{
-
-	req.clientID = getRandomInt(1000000)
+ 	
+	req.clientID = getRandomInt(1000000) + 10000
 	const payload = {...req.user,'clientID': req.clientID}
+
+	console.log(payload)
 	const refreshToken = jwt.sign(payload,REFRESH_SECRET)
 	req.refreshToken = refreshToken
 	req.newToken = true
 	try{
 		
-		await fastDB.store(req.user._id,clientID,req.ip,req.headers['user-agent'])
-	}
-	finally{
+		await fastDB.store(req.user._id,req.clientID,req.ip,req.headers['user-agent'])
 		next()
+
+	}
+	catch(error){
+		console.log(error)
 	}
 	
 }
@@ -72,45 +83,64 @@ function getRandomInt(max) {
 	let payload = null
 	if(req.newToken){
 		payload = {...req.user,clientID:req.clientID}
+		req.accessToken = jwt.sign(payload,JWT_SECRET)
+		next()
 	}
 	else if(!!req.body.refreshToken){
 		jwt.verify(req.body.refreshToken,REFRESH_SECRET,(err,user)=>{
 			//Check for CORRECT CODE
 			if(err) return res.sendStatus(403)
 			payload = user
+			req.accessToken = jwt.sign(payload,JWT_SECRET)
+			next()
 		})
 	}
 	else{
 		return res.sendStatus(403)
 	}
 
-	req.accessToken =  jwt.sign(payload,JWT_SECRET)
-	next()
 
 
 }
  const returnTokens = async(req,res,next)=>{
-	return res.json({'jwt':req.accessToken, 'refreshToken':req.refreshToken})
+	return res.json({'JWT':req.accessToken, 'refreshToken':req.refreshToken})
 }
 
  const validateRefresh = async(req,res,next)=>{
 	!!req.body.refreshToken && jwt.verify(req.body.refreshToken,REFRESH_SECRET,(err,user)=>{
-		if (err) return res.sendStatus(403)
-		else if(!!fastDB.validateRefresh(user.clientID))
-			return res.sendStatus(403)
+		if (err) return res.sendStatus(401)
+		else if(!fastDB.validateRefresh(user.clientID))
+			return res.sendStatus(401)
 	})
 	next()
 }
 
  const validateJWT = async(req,res,next)=>{
-	req.headers['Authorization'] && jwt.verify(req.headers['Authorization'],
+	 jwt.verify(req.headers['authorization'],
 														  JWT_SECRET,(err,user)=>{
-														  if(err) return res.sendStatus(403)
-														  else if(!user) res.sendStatus(403)
+														  	console.log('err\n' +err)
+														  	console.log('user\n'+ user)
+														  if(err) return res.sendStatus(401)
+														  else if(!user) return res.sendStatus(401)
 														  req.user = user
 														  req.authorized = true
+														  console.log('Verfied')
+															next()
 														  })
-	next()
+
+}
+
+const inValidateRefresh = async(req,res,next)=>{
+	try{
+		await fastDB.remove(req.user._id,req.user.clientID)
+		next()
+	}
+	catch(error)
+	{
+		console.log('Cant invalidate')
+		console.log(error)
+		return res.sendStatus(500)
+	}
 }
 
 module.exports.checkMobile = checkMobile
@@ -120,3 +150,5 @@ module.exports.getAccessToken = getAccessToken
 module.exports.returnTokens = returnTokens
 module.exports.validateRefresh = validateRefresh
 module.exports.validateJWT = validateJWT
+module.exports.inValidateRefresh = inValidateRefresh
+

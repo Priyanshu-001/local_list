@@ -4,7 +4,7 @@
 	users is a object mapping userId to array of login devices 
 */ 
 
-
+const Sniffr  = require('sniffr')
 let users = {}
 async function store(_id,clientID,secret,ip,userAgent){
 
@@ -12,13 +12,17 @@ const sniff  = new Sniffr()
 sniff.sniff(userAgent)
 const OS = sniff.os
 const browser = sniff.browser
-users[_id] = [...users[_id], {clientID:clientID,
-							ip:req.ip,
+const payload = {clientID:clientID,
+							ip:ip,
 							firstLogin:Date.now(),
 							OS:OS,
-							browser: Browser
+							browser: browser
+						}
+if(users[_id])
+users[_id] = [ payload, ...users[_id]]
+else
+	users[_id] = [payload]
 
-						}]
 }
 
 async function validateRefresh(_id,clientID){
@@ -40,6 +44,16 @@ async function getDeviceList(_id){
 	return  users[_id]
 }
 
+async function remove(_id,clientID)
+{
+	if(!users[_id])
+		return true
+	else{
+		users[_id] = users[_id].filter(client=>client.clientID!=clientID)
+	}
+}
+
 module.exports.store = store
 module.exports.validateRefresh = validateRefresh
 module.exports.getDeviceList = getDeviceList
+module.exports.remove = remove
