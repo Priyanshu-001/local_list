@@ -105,10 +105,22 @@ const orderSchema = new Schema({
       return Number(res)
     } 
   },
-
+  'address':String,
+  location: {
+    type: {
+      type: String, // Don't do `{ location: { type: String } }`
+      enum: ['Point'], // 'location.type' must be 'Point'
+      default:'Point',
+      required: true
+    },
+    coordinates: {
+      type: [Number],
+      required: true
+    }
+  },
   'status':{
     'type':String,
-    'enum':["completed","cancelled","waiting","accepted"],
+    'enum':["completed","cancelled","waiting","accepted","rejected"],
     'default': "waiting"
   },
   'items': [],

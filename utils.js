@@ -107,12 +107,15 @@ function getRandomInt(max) {
 }
 
  const validateRefresh = async(req,res,next)=>{
+ 	if(!req.body.refreshToken)
+ 		return res.sendStatus(401)
 	!!req.body.refreshToken && jwt.verify(req.body.refreshToken,REFRESH_SECRET,(err,user)=>{
 		if (err) return res.sendStatus(401)
 		else if(!fastDB.validateRefresh(user.clientID))
 			return res.sendStatus(401)
+		else
+			next()
 	})
-	next()
 }
 
  const validateJWT = async(req,res,next)=>{

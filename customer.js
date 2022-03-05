@@ -84,13 +84,19 @@ router.post('/changename',validateJWT,addName,inValidateRefresh,getRefreshToken,
 										})
 
 validateOrder =  (req,res,next)=>{
+	if(!req.body.order)
+		return res.sendStatus(400)
 	req.order = {}
+	console.dir(req.body.order.location)
 	req.order.items = req.body.order.items
 	req.order.tip = req.body.order.tip
 	req.order.subtotal = req.body.order.subtotal
 	req.order.name = req.body.order.name
 	req.order.receipt = req.body.order.receipt
 	req.order.instructions = req.body.order.instructions
+	req.order.location = {}
+	req.order.location.coordinates = [req.body.order.location.coordinates.long, req.body.order.location.coordinates.lat]
+	req.order.address = req.body.order.location.address
 
 	next()
 }
@@ -117,6 +123,7 @@ customerOnly = (req,res,next)=>{
 	next()
 }
 
+
 router.get('/orders',validateJWT,customerOnly, async(req,res)=>{
 	customer.findOne({_id:req.user._id})
 	.populate('orders',['name','status','orderTime','delivered','subtotal','tip','receipt'])
@@ -138,7 +145,6 @@ router.get('/order/:id',validateJWT,customerOnly,async(req,res)=>{
 		}
 		else if(doc.customerId == req.user._id){
 			const obj = {order:{...doc}}
-			console.log(req.use)
 			return res.json(doc._doc)
 		}
 		else{
