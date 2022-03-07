@@ -36,18 +36,10 @@ const customerSchema = new Schema({
 
 const partnerSchema = new Schema({
   'name': String,
-  // 'creation':{
-  //   'default':'incomplete',
-  //   'enum':['completed','incomplete'],
-  // },
   'number': {
     'type': String,
     'required':true,
     'index': true
-  },
-  'nOrders':{
-    'type':Number,
-    'default': 0
   },
   'rating':{
     'type':Number,
@@ -56,7 +48,7 @@ const partnerSchema = new Schema({
   },
   type:{
     type:String,
-    default:'business'
+    default:'partner'
   },
   status:{
     type:String,
@@ -84,7 +76,16 @@ const orderSchema = new Schema({
   },
   'orderTime':{
     type:Number,
-    default:()=>Date.now(),
+    default:Date.now()
+  },
+  'cancelTime':{
+    type:Number,
+  },
+  'acceptTime':{
+    type:Number,
+  },
+  'deliverTime':{
+    type:Number,
   },
   receipt:{
     type:Boolean,
@@ -127,6 +128,7 @@ const orderSchema = new Schema({
   
 
 })
+orderSchema.index({ location: '2dsphere' });
 
 const  customer = mongoose.model('customer',customerSchema)
 const  order = mongoose.model('order',orderSchema)
