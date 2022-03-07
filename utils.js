@@ -4,6 +4,7 @@ const SERVICE = process.env['SERVICE']
 const REFRESH_SECRET = process.env['REFRESH_SECRET']
 const JWT_SECRET = process.env['JWT_SECRET']
 const jwt = require('jsonwebtoken')
+const {order} = require('./db')
 
 
   const checkMobile = (req,res,next)=>{
@@ -133,7 +134,7 @@ function getRandomInt(max) {
 
 }
 
-const inValidateRefresh = async(req,res,next)=>{
+const inValidateRefresh = async (req,res,next)=>{
 	try{
 		await fastDB.remove(req.user._id,req.user.clientID)
 		next()
@@ -146,6 +147,23 @@ const inValidateRefresh = async(req,res,next)=>{
 	}
 }
 
+const getOrder = async (req,res,next)=>{
+	order.findOne({_id: req.params.id})
+	.exec((err,doc)=>{
+		if(err){
+			console.log(err)
+			return res.sendStatus(500)
+		}
+		else if(!doc){
+			return res.sendStatus(404)
+		}
+		else{
+			req.order = doc
+			next()
+		}
+		})
+}
+
 module.exports.checkMobile = checkMobile
 module.exports.verifyOTP = verifyOTP
 module.exports.getRefreshToken = getRefreshToken
@@ -154,4 +172,6 @@ module.exports.returnTokens = returnTokens
 module.exports.validateRefresh = validateRefresh
 module.exports.validateJWT = validateJWT
 module.exports.inValidateRefresh = inValidateRefresh
+module.exports.getOrder = getOrder
+
 

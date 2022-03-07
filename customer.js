@@ -1,6 +1,9 @@
 //Customer
 const {customer,order} = require('./db')
-const {checkMobile,validateJWT,verifyOTP,getRefreshToken,getAccessToken,returnTokens,inValidateRefresh} = require('./utils')
+const {checkMobile,validateJWT,verifyOTP,
+	getRefreshToken,getAccessToken,returnTokens,inValidateRefresh,
+	getOrder
+} = require('./utils')
 
 const router = require('express').Router()
 
@@ -117,7 +120,7 @@ router.post('/neworder',validateJWT,validateOrder,async (req,res)=>{
 
 })
 
-customerOnly = (req,res,next)=>{
+const customerOnly = (req,res,next)=>{
 	if(req.user.type !== 'customer')
 		return res.sendStatus(400)
 	next()
@@ -127,6 +130,7 @@ customerOnly = (req,res,next)=>{
 router.get('/orders',validateJWT,customerOnly, async(req,res)=>{
 	customer.findOne({_id:req.user._id})
 	.populate('orders',['name','status','orderTime','delivered','subtotal','tip','receipt'])
+	.sort({orderTime:1})
 	.exec((err,user)=>{
 		if(err){	
 			console.log(err)
@@ -135,24 +139,43 @@ router.get('/orders',validateJWT,customerOnly, async(req,res)=>{
 		return res.json({orders:user.orders})
 	})
 })
-router.get('/order/:id',validateJWT,customerOnly,async(req,res)=>{
-	order.findOne({_id: req.params.id})
-	.exec((err,doc)=>{
-		console.log(doc)
-		if(err){
-			console.log(err)
-			return res.sendStatus(500)
-		}
-		else if(doc.customerId == req.user._id){
-			const obj = {order:{...doc}}
-			return res.json(doc._doc)
+router.get('/order/:id',validateJWT,customerOnly,getOrder,async (req,res)=>{
+	
+		 if(req.order.customerId == req.user._id){
+			return res.json(req.order._doc)
 		}
 		else{
 			return res.sendStatus(403)
 		}
-	})
+	
 
 
+})
+
+router.patch('/order/:id/cancel',validateJWT,customerOnly,getOrder,async (req,res)=>{
+	if(req.order.customerId != req.user._id)
+		return res.sendStatus(403)
+	else if(req.order.status === 'waiting'){
+		
+		try{
+				let doc = req.order
+				doc.status = 'cancelled'
+				doc.cancelTime = Date.now() 
+				doc = await doc.save()
+				console.log('DOVVV')
+				console.log(doc)
+				return res.sendStatus(200)
+			}
+		catch(err){
+			console.log(err)
+			return res.sendStatus(500)
+		}
+	}
+	else {
+		return res.sendStatus(400)
+
+	}
+	
 })
 module.exports =  router
 

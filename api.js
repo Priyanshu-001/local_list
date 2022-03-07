@@ -1,5 +1,5 @@
 const customer = require('./customer')
-const business = require('./business')
+const partner = require('./partner')
 const {client } = require('./verify')
 require('dotenv').config()
 const SERVICE = process.env.SERVICE
@@ -8,6 +8,7 @@ const fastDB  = require('./fastDB')
 const router = require('express').Router()
 
 router.use('/customer',customer)
+router.use('/partner',partner)
 
 
 router.post('/sendOTP',checkMobile,async function(req,res){
