@@ -6,7 +6,6 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon  --ignore frontend/*",
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "MIT",
