@@ -12,8 +12,17 @@ if(process.env.NODE_ENV === "dev")
 	var corsOptions = {
     origin: 'http://localhost:8080',
     optionsSuccessStatus: 200 // For legacy browser support
-	}
+}
+
 app.use(cors(corsOptions));
+}
+else{
+var corsOptions = {
+    origin: process.env.frontend,
+    optionsSuccessStatus: 200 // For legacy browser support
+}
+app.use(cors(corsOptions));
+
 }
 
 app.listen(PORT,async ()=>{
