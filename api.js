@@ -40,6 +40,12 @@ router.post('/logout',validateJWT,inValidateRefresh, (req,res)=>{
     return res.sendStatus(200)
 })
 
+router.post('/remove',validateJWT,async (req,res)=>{
+    if(!req.body.clientID)
+        return res.sendStatus(400)
+    await fastDB.remove(req.user._id,req.body.clientID)
+    return res.sendStatus(200)
+})
 
 
 

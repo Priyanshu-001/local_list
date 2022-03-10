@@ -2,6 +2,7 @@ const express = require('express')
 const api = require('./api')
 const app = express()
 const cors = require('cors')
+const fastDB  = require('./fastDB')
 
 
 require('dotenv').config()
@@ -15,7 +16,11 @@ if(process.env.NODE_ENV === "dev")
 app.use(cors(corsOptions));
 }
 
-app.listen(PORT,()=>console.log(`Running on ${PORT}`))
+app.listen(PORT,async ()=>{
+	await fastDB.getRedis()
+	console.log('listening on ',PORT)
+
+})
 
 app.use(express.json())
 app.use('/api',api)

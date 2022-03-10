@@ -27,31 +27,30 @@ const {order} = require('./db')
 	
 }
 
-  const verifyOTP = async (req,res,next)=>{
+const verifyOTP = async (req,res,next)=>{
+if(process.env.NODE_ENV === 'dev'){
+	req.OTPVerified = true
+	next()
+}
 req.OTPVerified = false
-// client.verify.services(SERVICE)
-// 	.verificationChecks
-// 	.create({to:`+91${req.body.number}`, code: req.body.OTP})
-// 	.then(verification_check=>{
-// 		if(verification_check.status==='pending')
-// 		return res.sendStatus(401)
-// 		else
-// 			{
-// 			req.OTPVerified = true
-// 			next()
-// 			}
-// 		
-// 	})
-// 	.catch(error=>{
-// 		console.log(error)
-// 		return res.sendStatus(500)
-// 
-// 	})
-// 	
+client.verify.services(SERVICE)
+	.verificationChecks
+	.create({to:`+91${req.body.number}`, code: req.body.OTP})
+	.then(verification_check=>{
+		if(verification_check.status==='pending')
+		return res.sendStatus(401)
+		else
+			{
+			req.OTPVerified = true
+			next()
+			}
+		
+	})
+	.catch(error=>{
+		console.log(error)
+		return res.sendStatus(500)
 
-//testing COde
-req.OTPVerified = true
-next()
+	})
 	
 }
 
@@ -69,7 +68,9 @@ function getRandomInt(max) {
 	req.refreshToken = refreshToken
 	req.newToken = true
 	try{
-		
+		console.log('IP='+req.ip)
+		const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+		console.log(`IP2 = ${ip}`)
 		await fastDB.store(req.user._id,req.clientID,req.ip,req.headers['user-agent'])
 		next()
 

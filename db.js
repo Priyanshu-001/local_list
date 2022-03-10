@@ -95,7 +95,6 @@ const orderSchema = new Schema({
     type: String,
     default: 'No instructions were given'
   },
-  'delivered':Number,
   'otp' : {
     type:Number,
     default: ()=>{

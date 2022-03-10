@@ -16,6 +16,7 @@
     "express": "^4.17.2",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.1.8",
+    "redis": "^4.0.4",
     "sniffr": "^1.2.0",
     "twilio": "^3.73.1"
   },

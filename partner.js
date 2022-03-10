@@ -180,4 +180,35 @@ router.patch('/order/:id/accept',validateJWT,partnerOnly,getOrder,async (req,res
 		return res.sendStatus(200)
 	}
 })
+router.post('/order/:id/verifyotp', validateJWT,partnerOnly,getOrder, async (req,res)=>{
+	if(req.order.partnerId != req.user._id){
+		
+		return res.sendStatus(403)
+	}
+	else if(req.order.status !== 'accepted')
+		return res.sendStatus(400)
+	else if(!req.body.otp)
+		return res.sendStatus(400)	
+	else if(req.order.otp === Number(req.body.otp))
+		{
+			req.order.status = 'completed'
+			req.order.deliverTime = Date.now()
+			await req.order.save()
+			return res.sendStatus(200)
+		}
+	else{
+		return res.sendStatus(400)
+	}
+
+router.get('/order/:id/status',validateJWT,partnerOnly,getOrder, async (req,res)=>{
+
+	if(req.order.partnerId != req.user._id){
+		
+		return res.sendStatus(403)
+	}
+	return res.json({status: req.order.status})
+
+})
+
+})
 module.exports =  router

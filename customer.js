@@ -177,5 +177,14 @@ router.patch('/order/:id/cancel',validateJWT,customerOnly,getOrder,async (req,re
 	}
 	
 })
+router.get('/order/:id/status',validateJWT,customerOnly,getOrder, async (req,res)=>{
+
+	if(req.order.customerId != req.user._id){
+		
+		return res.sendStatus(403)
+	}
+	return res.json({status: req.order.status})
+
+})
 module.exports =  router
 
