@@ -150,6 +150,7 @@ const inValidateRefresh = async (req,res,next)=>{
 }
 
 const getOrder = async (req,res,next)=>{
+	console.log('Fetching Order ', req.params.id)
 	order.findOne({_id: req.params.id})
 	.exec((err,doc)=>{
 		if(err){
