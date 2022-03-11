@@ -78,7 +78,7 @@ addName = async (req,res,next)=>{
 		next()
 	})
 	.catch(err=>{
-		return res.sendStatus(400)
+		return res.sendStatus(500)
 	})
 }
 
@@ -112,7 +112,7 @@ router.post('/neworder',validateJWT,validateOrder,async (req,res)=>{
 		let shopper = await customer.findOne({_id: req.user._id})
 		shopper.orders.push(savedOrder)
 		shopper = await shopper.save()
-		return res.json({id:shopper._id})
+		return res.json({id:savedOrder._id})
 	}	
 	catch(err){
 		console.log(err)
