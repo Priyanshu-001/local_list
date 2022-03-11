@@ -1,5 +1,5 @@
 {
-  "name": "bagger",
+  "name": "locallist",
   "version": "1.0.0",
   "description": "Let your proxy shopper do the shopping.",
   "main": "index.js",
