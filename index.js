@@ -12,8 +12,17 @@ if(process.env.NODE_ENV === "dev")
 	var corsOptions = {
     origin: 'http://localhost:8080',
     optionsSuccessStatus: 200 // For legacy browser support
-	}
+}
+
 app.use(cors(corsOptions));
+}
+else{
+var corsOptions = {
+    origin: process.env.frontend,
+    optionsSuccessStatus: 200 // For legacy browser support
+}
+app.use(cors(corsOptions));
+
 }
 
 app.listen(PORT,async ()=>{
@@ -26,7 +35,7 @@ app.use(express.json())
 app.use('/api',api)
 
 app.get('*',(req,res)=>{
-	res.send('we will send the spa from here')
+	res.send('This is the Backend to <a href="https://gray-mushroom-029dae810.1.azurestaticapps.net/"> https://gray-mushroom-029dae810.1.azurestaticapps.net/ </a> ')
 })
 
 

@@ -1,12 +1,11 @@
 {
-  "name": "bagger",
+  "name": "locallist",
   "version": "1.0.0",
   "description": "Let your proxy shopper do the shopping.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon  --ignore frontend/*",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon  --ignore frontend/*"
   },
   "author": "",
   "license": "MIT",

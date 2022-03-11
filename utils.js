@@ -31,6 +31,7 @@ const verifyOTP = async (req,res,next)=>{
 if(process.env.NODE_ENV === 'dev'){
 	req.OTPVerified = true
 	next()
+	return null
 }
 req.OTPVerified = false
 client.verify.services(SERVICE)
@@ -38,7 +39,7 @@ client.verify.services(SERVICE)
 	.create({to:`+91${req.body.number}`, code: req.body.OTP})
 	.then(verification_check=>{
 		if(verification_check.status==='pending')
-		return res.sendStatus(401)
+		return res.sendStatus(403)
 		else
 			{
 			req.OTPVerified = true
