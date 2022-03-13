@@ -69,9 +69,7 @@ function getRandomInt(max) {
 	req.refreshToken = refreshToken
 	req.newToken = true
 	try{
-		console.log('IP='+req.ip)
 		const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-		console.log(`IP2 = ${ip}`)
 		await fastDB.store(req.user._id,req.clientID,req.ip,req.headers['user-agent'])
 		next()
 
@@ -86,7 +84,7 @@ function getRandomInt(max) {
 	let payload = null
 	if(req.newToken){
 		payload = {...req.user,clientID:req.clientID}
-		req.accessToken = jwt.sign(payload,JWT_SECRET)
+		req.accessToken = jwt.sign(payload,JWT_SECRET,{expiresIn='2h'})
 		next()
 	}
 	else if(!!req.body.refreshToken){
