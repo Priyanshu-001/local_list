@@ -110,12 +110,16 @@ function getRandomInt(max) {
  const validateRefresh = async(req,res,next)=>{
  	if(!req.body.refreshToken)
  		return res.sendStatus(401)
-	!!req.body.refreshToken && jwt.verify(req.body.refreshToken,REFRESH_SECRET,(err,user)=>{
+	!!req.body.refreshToken && jwt.verify(req.body.refreshToken,REFRESH_SECRET,async (err,user)=>{
 		if (err) return res.sendStatus(401)
-		else if(!fastDB.validateRefresh(user.clientID))
-			return res.sendStatus(401)
-		else
-			next()
+
+			else if(!!user){
+				const validated = await fastDB.validateRefresh(user.clientID)
+			 if( validated )
+				return next()
+			else
+				res.sendStatus(401)
+		}
 	})
 }
 
