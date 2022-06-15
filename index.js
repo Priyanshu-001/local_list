@@ -35,7 +35,8 @@ app.use(express.json())
 app.use('/api',api)
 
 app.get('*',(req,res)=>{
-	res.send('This is the Backend to <a href="https://gray-mushroom-029dae810.1.azurestaticapps.net/"> https://gray-mushroom-029dae810.1.azurestaticapps.net/ </a> ')
+
+	return res.redirect(process.env.frontend)
 })
 
 
