@@ -69,9 +69,7 @@ function getRandomInt(max) {
 	req.refreshToken = refreshToken
 	req.newToken = true
 	try{
-		console.log('IP='+req.ip)
 		const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-		console.log(`IP2 = ${ip}`)
 		await fastDB.store(req.user._id,req.clientID,req.ip,req.headers['user-agent'])
 		next()
 
@@ -86,7 +84,7 @@ function getRandomInt(max) {
 	let payload = null
 	if(req.newToken){
 		payload = {...req.user,clientID:req.clientID}
-		req.accessToken = jwt.sign(payload,JWT_SECRET)
+		req.accessToken = jwt.sign(payload,JWT_SECRET,{expiresIn:'2h'})
 		next()
 	}
 	else if(!!req.body.refreshToken){
@@ -112,12 +110,16 @@ function getRandomInt(max) {
  const validateRefresh = async(req,res,next)=>{
  	if(!req.body.refreshToken)
  		return res.sendStatus(401)
-	!!req.body.refreshToken && jwt.verify(req.body.refreshToken,REFRESH_SECRET,(err,user)=>{
+	!!req.body.refreshToken && jwt.verify(req.body.refreshToken,REFRESH_SECRET,async (err,user)=>{
 		if (err) return res.sendStatus(401)
-		else if(!fastDB.validateRefresh(user.clientID))
-			return res.sendStatus(401)
-		else
-			next()
+
+			else if(!!user){
+				const validated = await fastDB.validateRefresh(user.clientID)
+			 if( validated )
+				return next()
+			else
+				res.sendStatus(401)
+		}
 	})
 }
 
@@ -150,6 +152,7 @@ const inValidateRefresh = async (req,res,next)=>{
 }
 
 const getOrder = async (req,res,next)=>{
+	console.log('Fetching Order ', req.params.id)
 	order.findOne({_id: req.params.id})
 	.exec((err,doc)=>{
 		if(err){

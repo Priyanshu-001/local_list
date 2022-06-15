@@ -199,6 +199,7 @@ router.post('/order/:id/verifyotp', validateJWT,partnerOnly,getOrder, async (req
 	else{
 		return res.sendStatus(400)
 	}
+})
 
 router.get('/order/:id/status',validateJWT,partnerOnly,getOrder, async (req,res)=>{
 
@@ -210,5 +211,4 @@ router.get('/order/:id/status',validateJWT,partnerOnly,getOrder, async (req,res)
 
 })
 
-})
 module.exports =  router

@@ -61,6 +61,7 @@ async function validateRefresh(_id,clientID,bool=true){
 	}
 	catch(err){
 		console.log(err)
+		return false
 	}
 
 }
