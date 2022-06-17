@@ -52,8 +52,17 @@ router.post('/logout',validateJWT,inValidateRefresh, (req,res)=>{
 router.post('/remove',validateJWT,async (req,res)=>{
     if(!req.body.clientID)
         return res.sendStatus(400)
-    await fastDB.remove(req.user._id,req.body.clientID)
-    return res.sendStatus(200)
+    if(req.user.clientID === req.body.clientID)
+        return res.status(400).send('can not remote logout self')
+    try{
+        await fastDB.remove(req.user._id,req.body.clientID)
+        return res.sendStatus(200)
+    }
+    catch(err)
+    {
+        console.log(err)
+        return res.sendStatus(500)
+    }
 })
 
 

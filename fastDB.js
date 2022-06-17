@@ -90,6 +90,7 @@ async function remove(_id,clientID)
 	}
 	catch(err){
 		throw err
+		return false
 	}
 }
 
