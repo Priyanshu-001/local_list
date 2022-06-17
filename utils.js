@@ -114,7 +114,8 @@ function getRandomInt(max) {
 		if (err) return res.sendStatus(401)
 
 			else if(!!user){
-				const validated = await fastDB.validateRefresh(user.clientID)
+				console.log(user._id)
+				const validated = await fastDB.validateRefresh(user._id,user.clientID)
 			 if( validated )
 				return next()
 			else

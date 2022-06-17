@@ -32,8 +32,17 @@ router.post('/refreshToken',validateRefresh,getAccessToken,returnTokens,async (r
 	
 })
 router.get('/devices',validateJWT,async (req,res)=>{
-	const deviceList = await fastDB.getDeviceList(req.user._id)
-	return res.json({'devices':deviceList})
+    try{
+	const devices = await fastDB.getDeviceList(req.user._id)
+    console.log(devices)
+    return res.json({devices})
+
+    }
+    catch(err)
+    {
+        console.log(err)
+    }
+
 })
 
 router.post('/logout',validateJWT,inValidateRefresh, (req,res)=>{
