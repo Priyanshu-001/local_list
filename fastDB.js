@@ -4,9 +4,9 @@
 	users is a object mapping userId to array of login devices 
 */ 
 const Redis  = require('redis');
-const Sniffr  = require('sniffr');
+const {sniffUser} = require('./auxilaryFunctions')
 let redis= null;
-async function getRedis(){
+async function connect(){
 		 redis = Redis.createClient({
 			url:`rediss://${process.env.REDIS}:6380`,
 			password:process.env.REDIS_PASS
@@ -22,16 +22,7 @@ async function getRedis(){
 
 async function store(_id,clientID,ip,userAgent){
 
-const sniff  = new Sniffr()
-sniff.sniff(userAgent)
-const OS = sniff.os
-const browser = sniff.browser
-const payload = {clientID:clientID,
-							ip:ip,
-							firstLogin:Date.now(),
-							OS:OS,
-							browser: browser
-						}
+const payload =  sniffUser(userAgent,clientID,ip)
 try{
 	await redis.lPush(_id,JSON.stringify(payload))
 }
@@ -71,7 +62,7 @@ async function getDeviceList(_id){
 		return devices.map(device =>JSON.parse(device))
 	}
 	catch(err){
-		console.log(error)
+		console.log(err)
 	}
 }
 
@@ -89,7 +80,7 @@ async function remove(_id,clientID)
 		return true
 	}
 	catch(err){
-		throw err
+		
 		return false
 	}
 }
@@ -98,5 +89,5 @@ module.exports.store = store
 module.exports.validateRefresh = validateRefresh
 module.exports.getDeviceList = getDeviceList
 module.exports.remove = remove
-module.exports.getRedis = getRedis
+module.exports.connect = connect
 

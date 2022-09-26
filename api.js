@@ -5,6 +5,7 @@ require('dotenv').config()
 const SERVICE = process.env.SERVICE
 const {checkMobile,getAccessToken,validateRefresh,validateJWT,returnTokens,inValidateRefresh} = require('./utils')
 const fastDB  = require('./fastDB')
+const tokenStore = require('./tokenStore')
 const router = require('express').Router()
 
 router.use('/customer',customer)
@@ -33,7 +34,7 @@ router.post('/refreshToken',validateRefresh,getAccessToken,returnTokens,async (r
 })
 router.get('/devices',validateJWT,async (req,res)=>{
     try{
-	const devices = await fastDB.getDeviceList(req.user._id)
+	const devices = await tokenStore.getDeviceList(req.user._id)
     console.log(devices)
     return res.json({devices})
 
