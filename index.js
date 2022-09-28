@@ -2,7 +2,8 @@ const express = require('express')
 const api = require('./api')
 const app = express()
 const cors = require('cors')
-const fastDB  = require('./fastDB')
+const tokenStore = require('./tokenStore')
+
 
 
 require('dotenv').config()
@@ -26,7 +27,7 @@ app.use(cors(corsOptions));
 }
 
 app.listen(PORT,async ()=>{
-	await fastDB.getRedis()
+	await tokenStore.connect()
 	console.log('listening on ',PORT)
 
 })
@@ -35,8 +36,9 @@ app.use(express.json())
 app.use('/api',api)
 
 app.get('*',(req,res)=>{
-
-	return res.redirect(process.env.frontend)
+    if(process.env.redirect)
+	    return res.redirect(process.env.frontend)
+    return res.send("Hi there")
 })
 
 

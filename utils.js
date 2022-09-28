@@ -1,5 +1,5 @@
 const {client }  = require('./verify')
-const fastDB  = require('./fastDB')
+const tokenStore  = require('./tokenStore')
 const SERVICE = process.env['SERVICE']
 const REFRESH_SECRET = process.env['REFRESH_SECRET']
 const JWT_SECRET = process.env['JWT_SECRET']
@@ -7,7 +7,9 @@ const jwt = require('jsonwebtoken')
 const {order} = require('./db')
 
 
-  const checkMobile = (req,res,next)=>{
+
+
+const checkMobile = (req,res,next)=>{
 	const number = req.body.number 
 	try{
 		if(!!number && number%1==0 && number.length === 10){
@@ -70,7 +72,7 @@ function getRandomInt(max) {
 	req.newToken = true
 	try{
 		const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-		await fastDB.store(req.user._id,req.clientID,req.ip,req.headers['user-agent'])
+		await tokenStore.store(req.user._id,req.clientID,req.ip,req.headers['user-agent'])
 		next()
 
 	}
@@ -115,7 +117,7 @@ function getRandomInt(max) {
 
 			else if(!!user){
 				console.log(user._id)
-				const validated = await fastDB.validateRefresh(user._id,user.clientID)
+				const validated = await tokenStore.validateRefresh(user._id,user.clientID)
 			 if( validated )
 				return next()
 			else
@@ -126,22 +128,23 @@ function getRandomInt(max) {
 
  const validateJWT = async(req,res,next)=>{
 	 jwt.verify(req.headers['authorization'],
-														  JWT_SECRET,(err,user)=>{
-														  	console.log('err\n' +err)
-														  	console.log('user\n'+ user)
-														  if(err) return res.sendStatus(401)
-														  else if(!user) return res.sendStatus(401)
-														  req.user = user
-														  req.authorized = true
-														  console.log('Verfied')
-															next()
-														  })
+				JWT_SECRET,(err,user)=>{
+				
+				console.log('user\n'+ user)
+				if(err) return res.sendStatus(401)
+				else if(!user) return res.sendStatus(401)
+				req.user = user
+				req.authorized = true
+				console.log('Verfied')
+				next()
+				})
 
 }
 
 const inValidateRefresh = async (req,res,next)=>{
 	try{
-		await fastDB.remove(req.user._id,req.user.clientID)
+
+		await tokenStore.remove(req.user._id,req.user.clientID)
 		next()
 	}
 	catch(error)
@@ -179,5 +182,3 @@ module.exports.validateRefresh = validateRefresh
 module.exports.validateJWT = validateJWT
 module.exports.inValidateRefresh = inValidateRefresh
 module.exports.getOrder = getOrder
-
-
