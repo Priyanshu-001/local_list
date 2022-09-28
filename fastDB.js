@@ -1,22 +1,33 @@
-//TODO: Use Redis instead of in memory array
+
 
 /* format
 	users is a object mapping userId to array of login devices 
 */ 
 const Redis  = require('redis');
 const {sniffUser} = require('./auxilaryFunctions')
+const {promisify} = require('util')
+
 let redis= null;
+let redisOp = null
 async function connect(){
 		 redis = Redis.createClient({
-			url:`rediss://${process.env.REDIS}:6380`,
-			password:process.env.REDIS_PASS
+			url:`redis://${process.env.REDIS}`,
+			legacyMode: true,
+			// password:process.env.REDIS_PASS
 		})
 		redis.on('error',err=>console.log('ERROR'+ err))
 		redis.on('connect',()=>{
 			console.log('REDIS CONNECT')
 			
 		})
+
 		await redis.connect()
+		const {lPush, lRange,lSet,lRem} = redis
+		redisOp = {lPush,lRange,lSet,lRem}
+		Object.keys(redisOp).forEach(key=>{
+			redisOp[key] = promisify(redisOp[key])
+		})
+
 		
 	}
 
@@ -24,7 +35,9 @@ async function store(_id,clientID,ip,userAgent){
 
 const payload =  sniffUser(userAgent,clientID,ip)
 try{
-	await redis.lPush(_id,JSON.stringify(payload))
+	console.log("Type")
+	
+	await redis.lPush(String(_id),JSON.stringify(payload))
 }
 catch(err){
 	console.log(err)
@@ -58,7 +71,7 @@ async function validateRefresh(_id,clientID,bool=true){
 }
 async function getDeviceList(_id){
 	try{
-		let devices = await redis.lRange(_id,0,-1)
+		let devices = await redisOp.lRange(String(_id),0,-1)
 		return devices.map(device =>JSON.parse(device))
 	}
 	catch(err){
@@ -71,8 +84,8 @@ async function remove(_id,clientID)
 	try{
 		const index =  await validateRefresh(_id,clientID,false)
 		if(!!index && index>0)
-		{		await redis.lSet(_id,index-1,'DEL')
-				await redis.lRem(_id,index-1,'DEL')
+		{		await redisOp.lSet(String(_id),index-1,'DEL')
+				await redisOp.lRem(String(_id),index-1,'DEL')
 		}
 		else{
 			return false

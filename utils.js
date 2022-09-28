@@ -128,21 +128,22 @@ function getRandomInt(max) {
 
  const validateJWT = async(req,res,next)=>{
 	 jwt.verify(req.headers['authorization'],
-														  JWT_SECRET,(err,user)=>{
-														  	console.log('err\n' +err)
-														  	console.log('user\n'+ user)
-														  if(err) return res.sendStatus(401)
-														  else if(!user) return res.sendStatus(401)
-														  req.user = user
-														  req.authorized = true
-														  console.log('Verfied')
-															next()
-														  })
+				JWT_SECRET,(err,user)=>{
+				
+				console.log('user\n'+ user)
+				if(err) return res.sendStatus(401)
+				else if(!user) return res.sendStatus(401)
+				req.user = user
+				req.authorized = true
+				console.log('Verfied')
+				next()
+				})
 
 }
 
 const inValidateRefresh = async (req,res,next)=>{
 	try{
+
 		await tokenStore.remove(req.user._id,req.user.clientID)
 		next()
 	}
