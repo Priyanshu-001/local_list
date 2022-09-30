@@ -1,5 +1,5 @@
 const {client }  = require('./verification/twilio')
-const tokenStore  = require('./tokenStore')
+const tokenStore  = require('./TokenStorage/tokenStore')
 const SERVICE = process.env['SERVICE']
 const REFRESH_SECRET = process.env['REFRESH_SECRET']
 const JWT_SECRET = process.env['JWT_SECRET']

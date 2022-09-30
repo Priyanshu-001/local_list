@@ -4,8 +4,8 @@ const {client } = require('./verification/twilio')
 require('dotenv').config()
 const SERVICE = process.env.SERVICE
 const {checkMobile,getAccessToken,validateRefresh,validateJWT,returnTokens,inValidateRefresh} = require('./utils')
-const fastDB  = require('./fastDB')
-const tokenStore = require('./tokenStore')
+
+const tokenStore = require('./TokenStorage/tokenStore')
 const router = require('express').Router()
 
 router.use('/customer',customer)
@@ -56,7 +56,7 @@ router.post('/remove',validateJWT,async (req,res)=>{
     if(req.user.clientID === req.body.clientID)
         return res.status(400).send('can not remote logout self')
     try{
-        await fastDB.remove(req.user._id,req.body.clientID)
+        await tokenStore.remove(req.user._id,req.body.clientID)
         return res.sendStatus(200)
     }
     catch(err)

@@ -4,7 +4,7 @@
 	users is a object mapping userId to array of login devices 
 */ 
 const Redis  = require('redis');
-const {sniffUser} = require('./auxilaryFunctions')
+const {sniffUser} = require('../../auxilaryFunctions')
 const {promisify} = require('util')
 
 let redis= null;
