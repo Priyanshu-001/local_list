@@ -1,6 +1,6 @@
 const customer = require('./customer')
 const partner = require('./partner')
-const {client } = require('./verify')
+const {client } = require('./verification/twilio')
 require('dotenv').config()
 const SERVICE = process.env.SERVICE
 const {checkMobile,getAccessToken,validateRefresh,validateJWT,returnTokens,inValidateRefresh} = require('./utils')
@@ -11,7 +11,6 @@ const router = require('express').Router()
 router.use('/customer',customer)
 router.use('/partner',partner)
 
-
 router.post('/sendOTP',checkMobile,async function(req,res){
     if(process.env.NODE_ENV === 'dev')
         return res.sendStatus(200)
@@ -21,8 +20,9 @@ router.post('/sendOTP',checkMobile,async function(req,res){
              .create({to: `+91${req.body.number}`, channel: 'sms'})
            	 .then(()=>{return res.sendStatus(200)  })
            	 .catch((err)=>{
+                console.log(err)
            	 	return res.sendStatus(500)
-           	 	console.log(err)
+           	 	
            	})
 
 })

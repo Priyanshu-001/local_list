@@ -12,5 +12,8 @@ const sniffUser = (userAgent,clientID,ip) =>{
 							}
 	return payload
 }
-
+function getRandomInt(max) {
+	return Math.floor(Math.random() * max);
+  }
 module.exports.sniffUser = sniffUser
+module.exports.getRandomInt = getRandomInt

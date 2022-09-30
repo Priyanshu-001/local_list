@@ -1,10 +1,11 @@
-const {client }  = require('./verify')
+const {client }  = require('./verification/twilio')
 const tokenStore  = require('./tokenStore')
 const SERVICE = process.env['SERVICE']
 const REFRESH_SECRET = process.env['REFRESH_SECRET']
 const JWT_SECRET = process.env['JWT_SECRET']
 const jwt = require('jsonwebtoken')
 const {order} = require('./db')
+const { getRandomInt } = require('./auxilaryFunctions')
 
 
 
@@ -57,9 +58,7 @@ client.verify.services(SERVICE)
 	
 }
 
-function getRandomInt(max) {
-  return Math.floor(Math.random() * max);
-}
+
 
  const getRefreshToken = async (req,res,next)=>{
  	
